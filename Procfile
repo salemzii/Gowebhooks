@@ -1,1 +1,1 @@
-web: bin/quikwallet
+web: bin/gowebhook
