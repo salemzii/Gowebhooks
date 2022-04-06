@@ -5,10 +5,16 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
+	router := mux.NewRouter().StrictSlash(false)
 
+	http.Handle("/", router)
+
+	router.HandleFunc("validuser/response", ReceiveCustomerIsValidHook)
 }
 
 type PayHookResponse struct {
