@@ -1,20 +1,25 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
-	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	router := mux.NewRouter().StrictSlash(false)
+	router := gin.Default()
 
-	http.Handle("/", router)
+	router.GET("/", welcome)
+	router.POST("valid/response", ReceiveCustomerIsValidHook)
 
-	router.HandleFunc("validuser/response", ReceiveCustomerIsValidHook)
+	router.Run()
+}
+
+func welcome(c *gin.Context) {
+
+	c.JSON(200, gin.H{
+		"message": "Hello welcome to Franka webhook",
+	})
 }
 
 type PayHookResponse struct {
@@ -37,18 +42,10 @@ type Identification struct {
 	Bank_code      string `json:"bank_code"`
 }
 
-func ReceiveCustomerIsValidHook(w http.ResponseWriter, req *http.Request) {
+func ReceiveCustomerIsValidHook(c *gin.Context) {
 	var response PayHookResponse
-	if req.Method == "POST" {
-
-		respByte, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			log.Println(err)
-		}
-		e := json.Unmarshal(respByte, &response)
-		if e != nil {
-			log.Println(e)
-		}
+	if c.Request.Method == "POST" {
+		c.BindJSON(&response)
 		log.Println(response)
 	}
 }
